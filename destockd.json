@@ -1,0 +1,513 @@
+{
+  "name": "destockd",
+  "baseUrl": "https://www.destockd.com",
+  "operations": [
+    {
+      "name": "search",
+      "description": "Search public-domain FedFlix footage shots by text. 48 shots per call, best match first.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/search?q=%7Bq%7D&page=1",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "q",
+          "at": [
+            "query:q"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/films",
+        "steps": [
+          {
+            "action": "wait",
+            "ms": 1500
+          },
+          {
+            "action": "fill",
+            "selector": "#search-input",
+            "value": "{q}"
+          },
+          {
+            "action": "press",
+            "selector": "#search-input",
+            "value": "Enter"
+          },
+          {
+            "action": "wait",
+            "ms": 2500
+          }
+        ]
+      },
+      "match": {
+        "path": "/api/search"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "results",
+        "pick": [
+          "film",
+          "shot",
+          "keyframe",
+          "clip",
+          "preview",
+          "color_type",
+          "score"
+        ]
+      },
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false,
+      "checks": [
+        {
+          "args": {
+            "q": "zzqqxxnothingmatches"
+          },
+          "expect": "result",
+          "purpose": "search is semantic: even a no-match query returns nearest shots, never empty"
+        },
+        {
+          "args": {
+            "q": "submarine"
+          },
+          "expect": "result",
+          "purpose": "a different query reorders results (first: B-50 bomber shot_019, not the rocket example's newsreel)"
+        }
+      ]
+    },
+    {
+      "name": "getShot",
+      "description": "One shot's details: clip/preview/keyframe URLs, color type, archive.org and National Archives sources, and prev/next shot ids.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/shot/%7Bfilm%7D/%7Bshot%7D",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "film",
+          "at": [
+            "path:2"
+          ]
+        },
+        {
+          "param": "shot",
+          "at": [
+            "path:3"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/shot/{film}/{shot}"
+      },
+      "match": {
+        "path": "/api/shot/*/*"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json"
+      },
+      "params": [
+        {
+          "name": "film",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "shot",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "similar",
+      "description": "Shots visually similar to a given shot.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/similar/%7Bfilm%7D/%7Bshot%7D?",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "film",
+          "at": [
+            "path:2"
+          ]
+        },
+        {
+          "param": "shot",
+          "at": [
+            "path:3"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/similar/{film}/{shot}"
+      },
+      "match": {
+        "path": "/api/similar/*/*"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "results",
+        "pick": [
+          "film",
+          "shot",
+          "keyframe",
+          "clip",
+          "preview",
+          "color_type",
+          "score"
+        ]
+      },
+      "params": [
+        {
+          "name": "film",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "shot",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "listCollections",
+      "description": "All curated collections (slug, name, description, shot_count). Pass a slug to getCollection.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/collections",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/collections"
+      },
+      "match": {
+        "path": "/api/collections"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "collections",
+        "pick": [
+          "slug",
+          "name",
+          "description",
+          "shot_count"
+        ]
+      },
+      "params": [],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getCollection",
+      "description": "Shots in one curated collection (first page). Slugs come from listCollections.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/collections/%7Bslug%7D?page=1",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "slug",
+          "at": [
+            "path:2"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/collections/{slug}"
+      },
+      "match": {
+        "path": "/api/collections/*"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "results",
+        "pick": [
+          "film",
+          "shot",
+          "keyframe",
+          "clip",
+          "preview",
+          "color_type"
+        ]
+      },
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false,
+      "checks": [
+        {
+          "args": {
+            "slug": "technology"
+          },
+          "expect": "result",
+          "purpose": "a different collection than the examples returns its own shots"
+        }
+      ]
+    },
+    {
+      "name": "listFilms",
+      "description": "All source films, 24 per page, alphabetical (about 648 films / 27 pages).",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/films?page=%7Bpage%7D",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "page",
+          "at": [
+            "query:page"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/films/{page}"
+      },
+      "match": {
+        "path": "/api/films"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "films",
+        "pick": [
+          "film",
+          "shot_count"
+        ]
+      },
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "required": true,
+          "min": 1
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false,
+      "checks": [
+        {
+          "args": {
+            "page": "27"
+          },
+          "expect": "result",
+          "purpose": "last page still returns films"
+        }
+      ],
+      "paging": {
+        "param": "page"
+      }
+    },
+    {
+      "name": "random",
+      "description": "48 random shots (disturbing/blank footage excluded).",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/random?count=48",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/random"
+      },
+      "match": {
+        "path": "/api/random"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "results",
+        "pick": [
+          "film",
+          "shot",
+          "keyframe",
+          "clip",
+          "preview",
+          "color_type"
+        ]
+      },
+      "params": [],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    },
+    {
+      "name": "getFilm",
+      "description": "Every shot in a film, in order. For a shot's archive.org / National Archives source links, call getShot.",
+      "request": {
+        "method": "GET",
+        "url": "https://www.destockd.com/api/film/%7Bfilm%7D",
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-US,en;q=0.9",
+          "priority": "u=1, i",
+          "referer": "https://www.destockd.com/",
+          "sec-ch-ua": "\"Google Chrome\";v=\"155\", \"Chromium\";v=\"155\", \"Not(A:Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\"",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+        }
+      },
+      "slots": [
+        {
+          "param": "film",
+          "at": [
+            "path:2"
+          ]
+        }
+      ],
+      "volatile": [],
+      "trigger": {
+        "url": "https://www.destockd.com/#/film/Homecoming"
+      },
+      "match": {
+        "method": "GET",
+        "host": "www.destockd.com",
+        "path": "/api/film/*"
+      },
+      "response": {
+        "format": "json",
+        "contentType": "application/json",
+        "extract": "shots"
+      },
+      "params": [
+        {
+          "name": "film",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "readOnly": true,
+      "minTier": 1,
+      "learnedLoggedIn": false
+    }
+  ]
+}
